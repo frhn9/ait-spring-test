@@ -1,25 +1,16 @@
 package com.example.springbootcrud.example.service;
 
-import com.example.springbootcrud.example.entity.User;
-import com.example.springbootcrud.example.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.example.springbootcrud.example.dto.request.UserRequest;
+import com.example.springbootcrud.example.dto.response.UserResponse;
+import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 
 import java.util.List;
-@Service
-public class UserService {
-    @Autowired
-    private UserRepository userRepository;
 
-    public User saveUser(User user) {
-        return  userRepository.save(user);
-    }
+public interface UserService {
+    UserResponse saveUser(UserRequest userRequest) throws DuplicateName;
+    List<UserResponse> getAllUser();
+    List<UserResponse> getUserByName(String name);
 
-    public List<User> getUser() {
-        return userRepository.findAll();
-    }
-
-    public List<User> getUserByName(String name) {
-        return userRepository.findByName(name);
-    }
+    UserResponse convertUserToUserResponse(Object user);
+    Boolean isEmailDuplicate(String email);
 }

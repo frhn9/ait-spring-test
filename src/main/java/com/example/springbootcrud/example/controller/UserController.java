@@ -1,71 +1,54 @@
 package com.example.springbootcrud.example.controller;
 
-import com.example.springbootcrud.example.entity.User;
-import com.example.springbootcrud.example.entity.UserDummy;
+import com.example.springbootcrud.example.collections.ErrorSchema;
+import com.example.springbootcrud.example.collections.NoDataResponse;
+import com.example.springbootcrud.example.collections.Response;
+import com.example.springbootcrud.example.constant.UserURL;
+import com.example.springbootcrud.example.dto.request.UserRequest;
+import com.example.springbootcrud.example.dto.response.UserResponse;
+import com.example.springbootcrud.example.response.SuccessResponse;
 import com.example.springbootcrud.example.service.UserService;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import javax.validation.Valid;
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping(UserURL.USER)
 public class UserController {
+
     @Autowired
     private UserService userService;
 
-    @PostMapping("/user/add")
-    public String submitForm(@ModelAttribute("user") UserDummy user) {
-        User users = new User();
-        users.setName(user.getName());
-        users.setHp(user.getHp());
-        users.setEmail(user.getEmail());
+    @PostMapping()
+    @SneakyThrows
+    public ResponseEntity<NoDataResponse<ErrorSchema>> submitForm(@Valid
+                               @RequestBody UserRequest userRequest
+                               )  {
+        SuccessResponse<List<UserResponse>> response = new SuccessResponse<>();
+        userService.saveUser(userRequest);
 
-        System.out.println(user.getName());
-        String listString = "";
-
-        for (String s : user.getAlamat())
-        {
-            listString += s + "\t";
-        }
-
-        users.setAlamat(listString);
-        userService.saveUser(users);
-
-        return "";
+        return response.successPostUserData();
     }
 
-    @GetMapping("/user/list")
-    public String showUser(Model model) {
-        User user = new User();
-        List<User> listUser = new ArrayList<User>();
-        listUser = userService.getUser();
+    @GetMapping()
+    public ResponseEntity<Response<ErrorSchema, List<UserResponse>>> showUser() {
+        List<UserResponse> userList = userService.getAllUser();
+        SuccessResponse<List<UserResponse>> response = new SuccessResponse<>();
 
-        if (listUser == null || listUser.size() ==  0) {
-            return "";
-        }
-        else {
-            model.addAttribute("user", user);
-            model.addAttribute("users", listUser);
-            return "";
-        }
+        return response.successGetUserData(userList);
     }
 
-    @PostMapping("/user/find")
-    public String submitSearchUser(@ModelAttribute("user") User user, Model model) {
-        List<User> listUser = new ArrayList<User>();
-        listUser =  userService.getUserByName(user.getName());
+    @GetMapping(UserURL.SEARCH)
+    public ResponseEntity<Response<ErrorSchema, List<UserResponse>>> submitSearchUser(
+                                                                            @RequestParam(name = "name") String name) {
+        List<UserResponse> userList = userService.getUserByName(name);
+        SuccessResponse<List<UserResponse>> response = new SuccessResponse<>();
 
-        if (user.getName() == null || user.getName().equals("") ) {
-            model.addAttribute("users", userService.getUser());
-        }
-        else  {
-            model.addAttribute("users",listUser);
-        }
-
-        return "";
+        return response.successGetUserData(userList);
     }
 
 }

@@ -81,6 +81,22 @@
 
         <button type="submit"><a href="/user/addUser">Add</a></button>
 
+<script>
+    const url = 'http://localhost:9191/user/all';
+    async function getData() {
+        var headers = {}
+        const response = await fetch(url, {
+            method: "GET",
+            mode: 'cors',
+            headers: headers
+        });
+        const data = await response.json();
+        console.log(data)
+        }
+
+    getData();
+</script>
+
 <!-- Optional JavaScript; choose one of the two! -->
 
 <!-- Option 1: Bootstrap Bundle with Popper -->
